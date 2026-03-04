@@ -1,0 +1,11 @@
+:root {
+  --background: #292a2d;
+  --foreground: #a9a9b3;
+  --accent: #22a2c9; /* Blue accent */
+}
+
+/* Ensure the container is centered */
+.container {
+  margin: 0 auto !important;
+  border-right: none !important;
+}
