@@ -14,3 +14,5 @@ Beyond training models, I am comfortable working in Linux environments, writing 
 * **AIIMS Delhi** Research Intern in the Department of Neurosurgery
 * **IIT Delhi:** Graphics and Vision Summer School '24 (Coursework in image processing, rendering, and CNNs)
 * **KLS Gogte Institute of Technology:** BE in Electronics and Communication {CGPA : 8.88}
+
+[**📄 Download Full Resume**](/Prajwal_Kulkarni_Resume.pdf)
