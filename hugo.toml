@@ -1,0 +1,29 @@
+baseURL = 'https://Praakul.github.io/'
+languageCode = 'en-us'
+title = 'Prajwal Kulkarni | Terminal'
+theme = 'terminal'
+
+[params]
+  # Choose from: orange, blue, red, green, pink
+  themeColor = 'blue'
+  showMenuItems = 2
+  
+  # This makes the font match your editor
+  customCSS = ['css/custom.css']
+  
+  # Your professional headline
+  subtitle = 'Machine Learning Engineer. Specializing in Computer Vision, Deep Learning, and C++.'
+
+  [params.twitter]
+    twitter = "https://x.com/Praakul_"
+  [params.linkedin]
+    linkedin = "https://linkedin.com/in/praakul"
+  [params.github]
+    github = "https://github.com/Praakul"
+
+[[menu.main]]
+  name = "Projects"
+  url = "/posts"
+[[menu.main]]
+  name = "About"
+  url = "/about"
