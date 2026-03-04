@@ -1,29 +1,34 @@
-baseURL = 'https://Praakul.github.io/'
+baseURL = 'https://praakul.github.io/'
 languageCode = 'en-us'
 title = 'Prajwal Kulkarni | Terminal'
 theme = 'terminal'
 
 [params]
-  # Choose from: orange, blue, red, green, pink
   themeColor = 'blue'
+  
+  # These two lines center the layout
+  fullWidthTheme = false
+  centerTheme = true
+  
+  # This tells the homepage to show your projects
+  contentTypeName = 'posts'
   showMenuItems = 2
   
-  # This makes the font match your editor
   customCSS = ['css/custom.css']
-  
-  # Your professional headline
   subtitle = 'Machine Learning Engineer. Specializing in Computer Vision, Deep Learning, and C++.'
 
+  # Use only handles, not full URLs! The theme builds the links for you.
   [params.twitter]
-    twitter = "https://x.com/Praakul_"
+    twitter = "Praakul_"
   [params.linkedin]
-    linkedin = "https://linkedin.com/in/praakul"
+    linkedin = "praakul"
   [params.github]
-    github = "https://github.com/Praakul"
+    github = "Praakul"
 
 [[menu.main]]
   name = "Projects"
-  url = "/posts"
+  url = "/posts/"
+
 [[menu.main]]
   name = "About"
-  url = "/about"
+  url = "/about/"
