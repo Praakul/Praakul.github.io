@@ -1,0 +1,61 @@
+Prajwal Kulkarni
++91 8073807934 | prajwalanandk@gmail.com | linkedin.com/in/praakul | github.com/praakul
+
+EDUCATION
+KLS Gogte Institute of Technology Belagavi, Karnataka.
+BE in Electronics and Communication. GPA: 8.88
+Govindram Seksaria Pre-University College Belagavi, Karnataka.
+Score: 92.83%
+
+2022 - present
+2020 - 2022
+
+EXPERIENCE
+May 2025 - Sept 2025
+Department of Neurosurgery, AIIMS Delhi Research Intern
+- Created standalone application for automated evaluation of craniotomy training samples with integrated report
+generation and Grad-CAM interpretability visualizations
+- Engineered agentic AI framework for assessment of cylindrical suturing samples with multi-modal mechanisms
+- Implemented eye-tracking integration for endoscopy sensor fusion in surgical navigation workflows
+Indian Institute of Technology, Delhi Graphics and Vision Summer School
+May 2024 - June 2024
+- Completed coursework in image processing, computer vision, machine learning and rendering techniques
+- Applied Convolutional Neural Networks for visual recognition tasks and feature extraction pipelines
+- Explored ray-tracing algorithms and photorealistic rendering methodologies for 3D graphics synthesis
+- Constructed multi-image house price prediction model combining visual feature analysis with regression
+algorithms
+
+PROJECTS
+Medical Model Calibration
+- Study on overconfidence reduction in deep neural networks for clinical imaging, focusing on calibration
+techniques for high-risk decision making
+- Integrated auxiliary loss functions to improve probability estimates and benchmarked performance against
+post-hoc temperature scaling methods
+
+§
+
+Real-Time Industrial Posture Analysis System
+§
+- Developed an end-to-end system using ST-GCN and MediaPipe to classify ergonomic risks (Stoop vs. Squat) in
+real-time. Improved model accuracy to 88.2% by integrating Squeeze-and-Excitation (SE) attention blocks
+- Engineered a weak-supervision pipeline to auto-label 58,000+ frames using bio-mechanical heuristics, creating a
+physics-aware dataset from raw video inputs
+Multi-Vehicle Tracking with SORT
+- Engineered real-time vehicle tracking system implementing SORT algorithm with Kalman Filter for state
+estimation and Hungarian algorithm for optimal track assignment via IoU metrics
+- Deployed production-grade FastAPI service on Hugging Face Spaces with Docker containerization and
+automated CI/CD workflows via GitHub Actions
+
+TECHNICAL SKILLS
+Programming Languages: C/C++, Python
+ML/AI Frameworks: PyTorch, Scikit-learn, Matplotlib, NumPy
+Development Tools: Linux, Git/GitHub, Anaconda, FastAPI, PyQt5, Docker, Hugging Face
+Computer Vision: Image Processing, Object Detection, Pose Estimation
+
+CERTIFICATIONS
+Advanced Learning Algorithms Coursera
+Supervised Machine Learning - Regression and Classification Coursera
+
+
+
+

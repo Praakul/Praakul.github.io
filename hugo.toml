@@ -1,14 +1,14 @@
 baseURL = 'https://praakul.github.io/'
 languageCode = 'en-us'
-title = 'Prajwal Kulkarni | Terminal'
+title = 'Prajwal Kulkarni'
 theme = 'terminal'
 
 [params.logo]
-  logoText = ""
+  logoText = ">"
 
 [params]
   # These two lines center the layout
-  fullWidthTheme = true
+  fullWidthTheme = false
   centerTheme = true
   
   # This told the homepage to show your projects. We change it to something else

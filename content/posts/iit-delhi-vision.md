@@ -1,14 +1,22 @@
-<!-- +++
-title = "Iit Delhi Vision"
-date = "2026-03-05T00:54:02+05:30"
-#dateFormat = "2006-01-02" # This value can be configured for per-post date formatting
-author = ""
-authorTwitter = "" #do not include @
-cover = ""
-tags = ["", ""]
-keywords = ["", ""]
-description = ""
-showFullContent = false
-readingTime = false
-hideComments = false
-+++ -->
+---
+title: "Graphics and Vision Summer School - IIT Delhi"
+date: 2024-06-01
+draft: false
+tags: ["Computer Vision", "Machine Learning", "Image Processing", "Rendering"]
+---
+
+### The Experience
+During the Graphics and Vision Summer School at the Indian Institute of Technology, Delhi, I completed intensive coursework in image processing, computer vision, machine learning and rendering techniques.
+
+### Key Technical Contributions
+- **Visual Recognition:** Applied Convolutional Neural Networks for visual recognition tasks and feature extraction pipelines.
+- **Rendering Techniques:** Explored ray-tracing algorithms and photorealistic rendering methodologies for 3D graphics synthesis.
+- **Predictive Modeling:** Constructed a multi-image house price prediction model combining visual feature analysis with regression algorithms.
+
+<!-- ### Demo
+*If you have an MP4, place it in static/videos/iit-delhi.mp4 and it will appear here:*
+
+{{< video src="/videos/iit-delhi.mp4" >}} -->
+
+### Stack
+`Python`, `PyTorch`
