@@ -3,13 +3,17 @@ languageCode = 'en-us'
 title = 'Prajwal Kulkarni | Terminal'
 theme = 'terminal'
 
+[params.logo]
+  logoText = ""
+
 [params]
   # These two lines center the layout
-  fullWidthTheme = false
+  fullWidthTheme = true
   centerTheme = true
   
-  # This tells the homepage to show your projects
-  contentTypeName = 'posts'
+  # This told the homepage to show your projects. We change it to something else
+  # so it doesn't show any posts by default, only the _index.md content.
+  contentTypeName = 'pinned'
   showMenuItems = 2
   
   subtitle = 'Machine Learning Engineer. Specializing in Computer Vision, Deep Learning, and C++.'
