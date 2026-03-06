@@ -1,0 +1,237 @@
+baseURL: "https://praakul.github.io/"
+languageCode: "en-us"
+title: "Prajwal Kulkarni"
+theme: hugo-profile
+
+outputs:
+  home:
+    - "HTML"
+    - "RSS"
+    - "JSON"
+  page:
+    - "HTML"
+    - "RSS"
+
+enableRobotsTXT: true
+
+pagination:
+  pagerSize: 10
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+
+Menus:
+  main:
+    - identifier: blog
+      name: Blog
+      title: Blog posts
+      url: /blogs
+      weight: 1
+
+params:
+  title: "Prajwal Kulkarni"
+  description: "Machine Learning Engineer — Computer Vision, Deep Learning, C++"
+  # favicon: "/fav.png"
+
+  useBootstrapCDN: false
+  mathjax: false
+  animate: true
+
+  theme:
+    # disableThemeToggle: true
+    # defaultTheme: "light"
+
+  font:
+    fontSize: 1rem
+    fontWeight: 400
+    lineHeight: 1.5
+    textAlign: left
+
+  navbar:
+    align: ms-auto
+    brandName: "PK"
+    disableSearch: false
+    stickyNavBar:
+      enable: true
+      showOnScrollUp: true
+    enableSeparator: false
+    menus:
+      disableAbout: false
+      disableExperience: false
+      disableEducation: false
+      disableProjects: false
+      disableAchievements: false
+      disableContact: false
+
+  # ─── Hero ───────────────────────────────────────────────
+  hero:
+    enable: true
+    intro: "Hi, my name is"
+    title: "Prajwal Kulkarni."
+    subtitle: "Machine Learning Engineer"
+    content: "Specializing in Computer Vision, Deep Learning, and C++. I build AI systems from the ground up — from model architecture to production deployment."
+    button:
+      enable: true
+      name: "Resume"
+      url: "/Prajwal_Kulkarni_Resume.pdf"
+      download: false
+      newPage: true
+    socialLinks:
+      fontAwesomeIcons:
+        - icon: fab fa-github
+          url: https://github.com/Praakul
+        - icon: fab fa-linkedin
+          url: https://linkedin.com/in/praakul
+        - icon: fab fa-x-twitter
+          url: https://twitter.com/Prakul_
+
+  # ─── About ──────────────────────────────────────────────
+  about:
+    enable: true
+    title: "About Me"
+    image: "/self_photo_four_is_to_three.jpeg"
+    content: |-
+      I am a Machine Learning Engineer with a BE in Electronics and Communication Engineering from KLS Gogte Institute of Technology. I specialize in bridging the gap between high-level AI research and low-level system optimization.
+
+      My work focuses on Computer Vision, Deep Learning, and Agentic AI frameworks. I build models from scratch using PyTorch and deploy them into production with Docker and FastAPI. Beyond training models, I'm comfortable in Linux environments, writing C/C++, and building robust CI/CD pipelines.
+    skills:
+      enable: true
+      title: "Technologies I work with:"
+      items:
+        - "C/C++"
+        - "Python"
+        - "PyTorch"
+        - "OpenCV"
+        - "FastAPI"
+        - "Docker"
+        - "Linux"
+        - "Git/GitHub"
+
+  # ─── Experience ─────────────────────────────────────────
+  experience:
+    enable: true
+    items:
+      - company: "AIIMS Delhi"
+        companyUrl: "https://www.aiims.edu/"
+        jobs:
+          - name: "Research Intern — Dept. of Neurosurgery"
+            date: "May 2025 - Sept 2025"
+            content: |
+              Created a standalone application for automated evaluation of craniotomy training samples with integrated report generation and Grad-CAM interpretability visualizations.
+
+              - Engineered an agentic AI framework for assessment of cylindrical suturing samples with multi-modal mechanisms.
+              - Implemented eye-tracking integration for endoscopy sensor fusion in surgical navigation workflows.
+
+      - company: "IIT Delhi"
+        companyUrl: "https://home.iitd.ac.in/"
+        jobs:
+          - name: "Graphics & Vision Summer School"
+            date: "May 2024 - June 2024"
+            content: |
+              Completed coursework in image processing, computer vision, machine learning and rendering techniques.
+
+              - Applied CNNs for visual recognition tasks and feature extraction pipelines.
+              - Explored ray-tracing algorithms and photorealistic rendering for 3D graphics synthesis.
+              - Constructed multi-image house price prediction model combining visual features with regression.
+
+  # ─── Education ──────────────────────────────────────────
+  education:
+    enable: true
+    index: false
+    items:
+      - title: "BE in Electronics and Communication"
+        school:
+          name: "KLS Gogte Institute of Technology, Belagavi"
+          url: "https://git.edu/"
+        date: "2022 - Present"
+        GPA: "8.88 CGPA"
+        content: |-
+          Focus areas: Computer Vision, Deep Learning, Embedded Systems.
+      - title: "Pre-University (Science)"
+        school:
+          name: "Govindram Seksaria PU College, Belagavi"
+        date: "2020 - 2022"
+        GPA: "92.83%"
+
+  # ─── Projects ───────────────────────────────────────────
+  projects:
+    enable: true
+    items:
+      - title: "Medical Model Calibration"
+        content: "Study on overconfidence reduction in deep neural networks for clinical imaging, focusing on calibration techniques for high-risk decision making. Integrated auxiliary loss functions and benchmarked against post-hoc temperature scaling."
+        badges:
+          - "PyTorch"
+          - "Scikit-learn"
+          - "Deep Learning"
+
+      - title: "Real-Time Industrial Posture Analysis"
+        content: "End-to-end system using ST-GCN and MediaPipe to classify ergonomic risks (Stoop vs. Squat) in real-time. Engineered a weak-supervision pipeline to auto-label 58,000+ frames. Achieved 88.2% accuracy with SE attention blocks."
+        badges:
+          - "PyTorch"
+          - "MediaPipe"
+          - "ST-GCN"
+
+      - title: "Multi-Vehicle Tracking with SORT"
+        content: "Real-time vehicle tracking using SORT algorithm with Kalman Filter for state estimation and Hungarian algorithm for optimal track assignment. Deployed as a FastAPI service on Hugging Face Spaces with Docker and CI/CD via GitHub Actions."
+        badges:
+          - "OpenCV"
+          - "FastAPI"
+          - "Docker"
+          - "GitHub Actions"
+
+  # ─── Achievements / Certifications ─────────────────────
+  achievements:
+    enable: true
+    title: "Certifications"
+    items:
+      - title: "Advanced Learning Algorithms"
+        content: "Coursera — Stanford / DeepLearning.AI"
+      - title: "Supervised Machine Learning: Regression and Classification"
+        content: "Coursera — Stanford / DeepLearning.AI"
+
+  # ─── Contact ────────────────────────────────────────────
+  contact:
+    enable: true
+    content: "My inbox is always open. Whether you have a question or just want to say hi, I'll try my best to get back to you!"
+    btnName: Mail me
+    btnLink: mailto:prajwalanandk@gmail.com
+
+  # ─── Footer ─────────────────────────────────────────────
+  footer:
+    recentPosts:
+      path: "blogs"
+      count: 3
+      title: Recent Posts
+      enable: true
+      disableFeaturedImage: false
+    socialNetworks:
+      github: https://github.com/Praakul
+      linkedin: https://linkedin.com/in/praakul
+      twitter: https://twitter.com/Praakul_
+
+  # ─── List / Single Pages ────────────────────────────────
+  listPages:
+    disableFeaturedImage: false
+
+  singlePages:
+    socialShare: true
+    readTime:
+      enable: true
+      content: "min read"
+    scrollprogress:
+      enable: true
+    tags:
+      openInNewTab: true
+
+  terms:
+    read: "Read"
+    toc: "Table Of Contents"
+    copyright: "All rights reserved"
+    emailText: "Check out this site"
+
+  datesFormat:
+    article: "Jan 2, 2006"
+    articleList: "Jan 2, 2006"
+    articleRecent: "Jan 2, 2006"

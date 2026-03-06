@@ -13,10 +13,6 @@ During the Graphics and Vision Summer School at the Indian Institute of Technolo
 - **Rendering Techniques:** Explored ray-tracing algorithms and photorealistic rendering methodologies for 3D graphics synthesis.
 - **Predictive Modeling:** Constructed a multi-image house price prediction model combining visual feature analysis with regression algorithms.
 
-<!-- ### Demo
-*If you have an MP4, place it in static/videos/iit-delhi.mp4 and it will appear here:*
-
-{{< video src="/videos/iit-delhi.mp4" >}} -->
 
 ### Stack
 `Python`, `PyTorch`

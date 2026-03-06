@@ -13,10 +13,6 @@ At the Department of Neurosurgery, AIIMS Delhi, I engineered an agentic AI frame
 - **Sensor Fusion:** Implemented eye-tracking integration for endoscopy fusion in surgical navigation.
 - **Automation:** Built a standalone application for evaluating craniotomy training samples with automated report generation.
 
-<!-- ### Demo
-*If you have an MP4, place it in static/videos/aiims.mp4 and it will appear here:*
-
-{{< video src="/videos/aiims.mp4" >}} -->
 
 ### Stack
 `Python`, `C++`, `PyTorch`, `PyQt5`, `OpenCV`
