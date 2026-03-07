@@ -156,30 +156,9 @@ params:
         GPA: "92.83%"
 
   # ─── Projects ───────────────────────────────────────────
+  # Project cards are auto-generated from content/projects/*.md
   projects:
     enable: true
-    items:
-      - title: "Medical Model Calibration"
-        content: "Study on overconfidence reduction in deep neural networks for clinical imaging, focusing on calibration techniques for high-risk decision making. Integrated auxiliary loss functions and benchmarked against post-hoc temperature scaling."
-        badges:
-          - "PyTorch"
-          - "Scikit-learn"
-          - "Deep Learning"
-
-      - title: "Real-Time Industrial Posture Analysis"
-        content: "End-to-end system using ST-GCN and MediaPipe to classify ergonomic risks (Stoop vs. Squat) in real-time. Engineered a weak-supervision pipeline to auto-label 58,000+ frames. Achieved 88.2% accuracy with SE attention blocks."
-        badges:
-          - "PyTorch"
-          - "MediaPipe"
-          - "ST-GCN"
-
-      - title: "Multi-Vehicle Tracking with SORT"
-        content: "Real-time vehicle tracking using SORT algorithm with Kalman Filter for state estimation and Hungarian algorithm for optimal track assignment. Deployed as a FastAPI service on Hugging Face Spaces with Docker and CI/CD via GitHub Actions."
-        badges:
-          - "OpenCV"
-          - "FastAPI"
-          - "Docker"
-          - "GitHub Actions"
 
   # ─── Achievements / Certifications ─────────────────────
   achievements:
@@ -201,9 +180,9 @@ params:
   # ─── Footer ─────────────────────────────────────────────
   footer:
     recentPosts:
-      path: "blogs"
+      path: "projects"
       count: 3
-      title: Recent Posts
+      title: Recent Projects
       enable: true
       disableFeaturedImage: false
     socialNetworks:
