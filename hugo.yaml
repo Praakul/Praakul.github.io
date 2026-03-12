@@ -32,7 +32,7 @@ Menus:
 
 params:
   title: "Prajwal Kulkarni"
-  description: "Machine Learning Engineer — Computer Vision, Deep Learning, C++"
+  description: "Machine Learning Engineer — Computer Vision, Deep Learning, Agentic AI,and C++"
   # favicon: "/fav.png"
 
   useBootstrapCDN: false
@@ -71,7 +71,7 @@ params:
     intro: "Hi, my name is"
     title: "Prajwal Kulkarni."
     subtitle: "Machine Learning Engineer"
-    content: "Specializing in Computer Vision, Deep Learning, and C++. I build AI systems from the ground up — from model architecture to production deployment."
+    content: "Specializing in Deep Learning, Computer Vision and Agentic AI along with strong intereset in C++. I build AI systems from the ground up — from model architecture to production deployment."
     button:
       enable: true
       name: "Resume"
@@ -93,20 +93,20 @@ params:
     title: "About Me"
     image: "/self_photo_four_is_to_three.jpeg"
     content: |-
-      I am a Machine Learning Engineer with a BE in Electronics and Communication Engineering from KLS Gogte Institute of Technology. I specialize in bridging the gap between high-level AI research and low-level system optimization.
+      I am a Machine Learning Engineer with a BE in Electronics and Communication Engineering from KLS Gogte Institute of Technology. I specialize in bridging the gap between AI and low-level system optimization.
 
       My work focuses on Computer Vision, Deep Learning, and Agentic AI frameworks. I build models from scratch using PyTorch and deploy them into production with Docker and FastAPI. Beyond training models, I'm comfortable in Linux environments, writing C/C++, and building robust CI/CD pipelines.
     skills:
       enable: true
       title: "Technologies I work with:"
       items:
-        - "C/C++"
         - "Python"
         - "PyTorch"
         - "OpenCV"
         - "FastAPI"
         - "Docker"
         - "Linux"
+        - "C/C++"
         - "Git/GitHub"
 
   # ─── Experience ─────────────────────────────────────────
@@ -119,8 +119,7 @@ params:
           - name: "Research Intern — Dept. of Neurosurgery"
             date: "May 2025 - Sept 2025"
             content: |
-              Created a standalone application for automated evaluation of craniotomy training samples with integrated report generation and Grad-CAM interpretability visualizations.
-
+              - Created a standalone application for automated evaluation of craniotomy training samples with integrated report generation and Grad-CAM interpretability visualizations.
               - Engineered an agentic AI framework for assessment of cylindrical suturing samples with multi-modal mechanisms.
               - Implemented eye-tracking integration for endoscopy sensor fusion in surgical navigation workflows.
 

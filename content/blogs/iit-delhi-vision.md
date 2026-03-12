@@ -7,7 +7,9 @@ tags: ["Computer Vision", "Machine Learning", "Image Processing", "Rendering"]
 
 Attended the **Graphics and Vision Summer School** at the Indian Institute of Technology, Delhi — an intensive program covering the mathematical foundations and practical applications of computer vision, machine learning, and computer graphics.
 
-## Curriculum
+---
+
+### Curriculum
 
 The program covered three core areas:
 
@@ -17,10 +19,10 @@ The program covered three core areas:
 
 **Computer Graphics & Rendering** — Ray-tracing algorithms for photorealistic rendering, 3D scene representation, transformation mathematics, and shader programming fundamentals.
 
-## Hands-On Project
+### Hands-On Project
 
 Built a **multi-image house price prediction model** that combines visual feature analysis (extracted from property images via CNNs) with structured metadata using regression algorithms — a practical application bridging computer vision with real-world prediction tasks.
 
-## Stack
+### Stack
 
 Python · PyTorch · OpenCV · NumPy · Matplotlib
