@@ -145,9 +145,9 @@ params:
           name: "KLS Gogte Institute of Technology, Belagavi"
           url: "https://git.edu/"
         date: "2022 - Present"
-        GPA: "8.88 CGPA"
-        content: |-
-          Focus areas: Computer Vision, Deep Learning, Embedded Systems.
+        GPA: "8.88"
+        # content: |-
+        #   Focus areas: Computer Vision, Deep Learning, Embedded Systems.
       - title: "Pre-University (Science)"
         school:
           name: "Govindram Seksaria PU College, Belagavi"

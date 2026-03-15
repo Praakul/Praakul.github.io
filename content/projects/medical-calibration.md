@@ -6,67 +6,67 @@ tags: ["Deep Learning", "Medical Imaging", "Model Calibration", "Trustworthy AI"
 badges: ["PyTorch", "MDCA", "Focal Loss", "Scikit-learn"]
 links:
   - icon: fab fa-github
-    url: https://github.com/praakul/medicalModelCalibration
+    url: https://github.com/Praakul/medicalModelCalibration
 ---
 
-In high-stakes medical imaging, high accuracy alone is dangerous. A model predicting "99% confidence" must actually be correct 99% of the time. Most deep learning models are **overconfident** — they concentrate probability mass on their predictions regardless of actual correctness. This project implements a comprehensive pipeline to evaluate and fix this problem, comparing two fundamentally different approaches across **180 experiments**.
-
----
-
-## The Core Question
-
-> _Is it better to train a model that's calibrated from the start, or fix miscalibration after training?_
-
-**Answer: Train-time regularization wins decisively.** The combination of **Focal Loss + MDCA** achieved 97.8% accuracy with minimal calibration error — no post-processing needed.
+In the world of medical imaging, having high accuracy just isn't enough—it can actually be dangerous. If a model says it's "99% confident" about a diagnosis, it needs to be right 99% of the time. The catch is that most deep learning models are wildly **overconfident**, throwing high probabilities at predictions even when they're wrong. I built a comprehensive pipeline to tackle this exact problem, running **180 experiments** to compare two completely different ways of fixing neural network calibration.
 
 ---
 
-## Train-Time Approach: MDCA Loss
+### The Core Question
 
-The key innovation is the **MDCA (Multi-class Difference in Confidence and Accuracy)** auxiliary loss function. For each class `c`, MDCA computes:
+> _Is it better to train a model to be calibrated right out of the box, or to patch its overconfidence after training?_
 
-```
+**The Answer: Train-time regularization wins decisively.** Using a combo of **Focal Loss and MDCA** hit 97.8% accuracy with barely any calibration error, completely eliminating the need for post-processing hacks.
+
+---
+
+### Fixing It During Training: MDCA Loss
+
+My favorite approach relies on the **MDCA (Multi-class Difference in Confidence and Accuracy)** auxiliary loss function. For every class `c`, it checks:
+
+```text
 loss += |avg_confidence(c) - avg_frequency(c)|
 ```
 
-This penalizes the gap between a model's average predicted probability for class `c` and the actual proportion of class `c` in the batch. The total loss is normalized by the number of classes.
+Basically, it heavily penalizes the model if its average confidence for a class doesn't match how often that class actually appears. 
 
-**Implementation:** The `CombinedLoss` class combines a primary loss (CrossEntropy or Focal Loss) with the MDCA regularizer weighted by β:
+**How I implemented it:** I wrote a `CombinedLoss` class that pairs a primary loss (like standard CrossEntropy or Focal Loss) with the MDCA regularizer.
 
-```
+```text
 total_loss = primary_loss(logits, targets) + β × MDCA(logits, targets)
 ```
 
-Four loss configurations were tested:
-- `cross_entropy` — Standard baseline
-- `focal_loss` — Down-weights easy examples using `(1-pt)^γ` modulation (γ=2.0)
-- `NLL+MDCA` — CrossEntropy + MDCA (β=5.0)
-- `FL+MDCA` — Focal Loss + MDCA (β=5.0) ← **State-of-the-art result**
+I tested four different configurations:
+- `cross_entropy` — The basic baseline.
+- `focal_loss` — Drops the weight of "easy" examples.
+- `NLL+MDCA` — CrossEntropy plus MDCA.
+- `FL+MDCA` — Focal Loss plus MDCA (**This achieved the state-of-the-art result**).
 
 ---
 
-## Post-Hoc Approach: Temperature & Dirichlet Scaling
+### Fixing It After Training: Post-Hoc Scaling
 
-Two post-hoc methods were implemented for comparison:
+For comparison, I also implemented two popular methods for fixing calibration *after* a model is already trained:
 
-### Temperature Scaling
-A single learnable parameter `T` (initialized at 1.5) divides the logits before softmax: `scaled_logits = logits / T`. The temperature is optimized on the validation set using **LBFGS** (max 100 iterations) to minimize cross-entropy loss. The parameter is clamped to `min=1e-4` to prevent division by zero.
+#### Temperature Scaling
+This is the classic trick: divide the model's logits by a single, learnable parameter `T` (starting at 1.5) right before the softmax layer. I used **LBFGS** to optimize `T` on the validation set so it minimizes the cross-entropy loss.
 
-### Dirichlet Scaling (Matrix Scaling)
-A learned `nn.Linear(num_classes, num_classes)` layer transforms the logits. This is more expressive than temperature scaling — it can learn per-class scaling relationships. Includes an L2 regularizer on the bias term weighted by µ to prevent overfitting on small validation sets. Also optimized with LBFGS.
+#### Dirichlet Scaling (Matrix Scaling)
+This steps it up by using a fully learned linear layer to transform the logits, letting it discover complex scaling relationships per class. To stop it from dramatically overfitting on small validation sets, I added an L2 regularizer.
 
-**Critical finding:** Dirichlet scaling introduces **massive variance** on small medical validation sets. The extra parameters overfit to the validation distribution, often *degrading* the model's reliability compared to no calibration at all.
+**What I found:** Dirichlet scaling behaves erratically on small medical datasets. Because it has extra parameters, it ends up overfitting strictly to the validation data. In many cases, it made the model's reliability *worse* than doing nothing at all!
 
 ---
 
-## Experiment Design
+### How the Experiments Were Designed
 
-**180 total experiments** = 5 datasets × 3 architectures × 4 loss functions × 3 configurations (no calibration, temperature, dirichlet)
+I ran **180 total experiments** to be absolutely sure of the results. This covered 5 datasets, 3 model architectures, 4 loss functions, and 3 post-hoc setups.
 
-### Architectures
-- ResNet-18, ResNet-34, ResNet-50 (all with configurable dropout)
+#### Architectures
+- ResNet-18, ResNet-34, and ResNet-50 (all tweaked with configurable dropout).
 
-### Datasets
+#### Datasets
 
 | Dataset | Classes | Size | Labels |
 |---------|---------|------|--------|
@@ -76,21 +76,21 @@ A learned `nn.Linear(num_classes, num_classes)` layer transforms the logits. Thi
 | Chest X-Ray | 2 | 5,840 | Normal, Pneumonia |
 | COVID-19 | 3 | 12,098 | COVID, Normal, Viral Pneumonia |
 
-The data loader automatically discovers the train/test split from directory structure and creates a validation set.
+I also wrote a neat data loader that automatically figures out the train/test split from the directory structure and handles validation set creation.
 
-### Metrics Suite
-Every experiment tracks:
-- **Performance:** Accuracy, Weighted F1-Score, Weighted AUC (One-vs-Rest)
-- **Calibration:** ECE (Expected Calibration Error), MCE (Maximum Calibration Error), ACE (Adaptive Calibration Error using equal-count bins)
-- **Visualization:** Reliability diagrams (confidence vs. accuracy per bin) saved for every best model
+#### Tracking the Metrics
+Every single run tracked:
+- **Performance:** Accuracy, Weighted F1-Score, Weighted AUC.
+- **Calibration:** ECE (Expected Calibration Error), MCE, and ACE.
+- **Visualization:** I set it up to auto-generate reliability diagrams for the best models.
 
-### Training Pipeline
-- **Optimizer:** Adam with configurable learning rate and weight decay
-- **Scheduler:** MultiStepLR with configurable milestones and gamma
-- **Automation:** A shell script (`autoTrainer.sh`) loops through all dataset-loss-model combinations, running `train.py` for each. A separate `autoCalibrator.py` applies post-hoc methods to every trained checkpoint.
-- **Results compilation:** `compileResults.py` parses all experiment logs into a CSV for analysis. `plotresults.py` generates publication-ready comparison plots (calibration landscapes, method comparison boxplots, loss impact analysis).
+#### The Training Pipeline
+Everything was heavily automated:
+- **Optimizer & Scheduler:** Adam optimizer paired with a MultiStepLR scheduler.
+- **Automation script:** A bash script (`autoTrainer.sh`) iterated through every possible dataset-loss-model combo, and a separate `autoCalibrator.py` script reliably applied the post-hoc fixes to all the checkpoints.
+- **Analytics:** At the end, a `compileResults.py` script parsed hundreds of logs right into a clean CSV, and `plotresults.py` spat out publication-ready charts comparing calibration methods.
 
 ---
 
-## Stack
+### Tech Stack
 `Python` · `PyTorch` · `Torchvision` · `Scikit-learn` · `Pandas` · `Seaborn` · `Matplotlib` · `NumPy`

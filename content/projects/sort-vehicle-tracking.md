@@ -8,95 +8,94 @@ links:
   - icon: fab fa-github
     url: https://github.com/Praakul/multipleVehicleTracking
   - icon: fas fa-globe
-    url: https://prajwalkulkarni-vehicletracking.hf.space/docs
+    url: https://huggingface.co/spaces/PrajwalKulkarni/vehicleTracking
 ---
 
-A from-scratch implementation of the **SORT (Simple Online and Realtime Tracking)** algorithm for multi-vehicle tracking. Every component — the Kalman Filter, the Hungarian assignment solver, and the track lifecycle manager — is written from first principles, not imported from a library. Deployed as a production FastAPI service on Hugging Face Spaces.
+I built a completely from-scratch implementation of the **SORT (Simple Online and Realtime Tracking)** algorithm to track multiple vehicles in traffic videos. Instead of just importing a library, I really wanted to understand the math behind it, so I wrote every core component—like the Kalman Filter, the Hungarian assignment solver, and the track lifecycle manager—from the ground up. I then packaged it as a production-ready FastAPI service and deployed it on Hugging Face Spaces.
 
 ---
 
-## The Kalman Filter — From First Principles
+### Understanding the Kalman Filter
 
-At the core of each tracked vehicle is a **6-dimensional Kalman Filter** implementing a constant-velocity motion model:
+At the heart of the project is a **6-dimensional Kalman Filter** that keeps track of each vehicle using a constant-velocity motion model.
 
-### State Vector
-```
+#### The State Vector
+```text
 x = [cx, cy, w, h, vx, vy]
 ```
-Where `cx, cy` = bounding box center, `w, h` = width/height, `vx, vy` = center velocity.
+Here, `cx` and `cy` represent the center of the bounding box, `w` and `h` are its width and height, and `vx` and `vy` show how fast the center is moving.
 
-### State Transition (Predict Step)
-The transition matrix `F` encodes the constant velocity assumption:
-```
-cx' = cx + vx·dt    (position updates by velocity)
+#### Predicting the Next State
+To guess where the vehicle will be in the next frame, the transition matrix `F` assumes the velocity stays constant:
+```text
+cx' = cx + vx·dt    (position updates based on velocity)
 cy' = cy + vy·dt
-w'  = w              (size stays constant between frames)
+w'  = w              (size stays the same between frames)
 h'  = h
-vx' = vx             (velocity stays constant)
+vx' = vx             (velocity remains constant)
 vy' = vy
 ```
-State covariance propagation: `P' = F·P·Fᵀ + Q`
+The uncertainty (state covariance) also updates like this: `P' = F·P·Fᵀ + Q`.
 
-### Measurement Model (Update Step)
-Only position and size are directly observed from YOLO detections (4D measurement = `[cx, cy, w, h]`). The velocities are estimated indirectly through the filter's internal state.
+#### Updating with Measurements
+When YOLO detects a vehicle, we only get its position and size (`[cx, cy, w, h]`). We have to infer its velocity using the filter's internal state. 
 
-The update follows the standard Kalman equations:
-1. **Innovation:** `y = measurement - H·state` (how wrong was our prediction?)
+Here's how the Kalman equations update our predictions:
+1. **Innovation:** `y = measurement - H·state` (Figuring out how wrong our prediction was)
 2. **Innovation covariance:** `S = H·P·Hᵀ + R`
-3. **Kalman Gain:** `K = P·Hᵀ·S⁻¹` (how much to trust measurement vs. prediction)
+3. **Kalman Gain:** `K = P·Hᵀ·S⁻¹` (Deciding whether to trust the new measurement or our prediction more)
 4. **State update:** `state = state + K·y`
 5. **Covariance update:** `P = (I - K·H)·P`
 
-The noise covariances are tuned for traffic video: process noise `Q` uses `q_pos=0.1` (positions are predictable) and `q_vel=1.0` (accelerations happen). Measurement noise `R = 5.0·I` reflects YOLOv8's detection precision.
+I tuned the noise values specifically for traffic videos. Since vehicles usually follow predictable paths but can change speed, I set the process noise `Q` with `q_pos=0.1` and `q_vel=1.0`. For the measurement noise `R`, a value of `5.0·I` worked well to balance out YOLOv8's detection quirks.
 
 ---
 
-## The SORT Pipeline
+### How the SORT Pipeline Works
 
-Each frame passes through four stages:
+For every single frame of the video, things go through four main steps:
 
-### 1. Detection
-A pre-trained **YOLOv8n** model processes the frame, filtering for COCO vehicle classes only: cars (2), buses (5), trucks (7). Detections below the confidence threshold are discarded.
+#### 1. Spotting the Vehicles (Detection)
+A pre-trained **YOLOv8n** model scans the frame and pulls out detections. I filtered these to only care about COCO vehicle classes: cars, buses, and trucks. Anything with low confidence gets tossed out.
 
-### 2. Prediction
-Every existing track's Kalman Filter predicts its expected position in the current frame. The track's `time_since_update` counter increments.
+#### 2. Predicting Where They're Going
+Every active track uses its own Kalman Filter to guess where it expects to see the vehicle in the current frame. The `time_since_update` counter also ticks up for each track.
 
-### 3. Association — Hungarian Algorithm
-The core matching problem: given N predicted track positions and M new detections, find the optimal assignment.
+#### 3. Matching Detections to Tracks (Hungarian Algorithm)
+This is where the magic happens. We have N predicted positions and M new detections from YOLO, and we need to pair them up perfectly. 
+- I calculate a **cost matrix** measuring the mismatch between predictions and detections (`1 - IoU(predicted, detected)`).
+- Then, the **Hungarian algorithm** (`scipy.optimize.linear_sum_assignment`) jumps in to solve this as a minimum-cost assignment puzzle.
+- Any matches with an IoU of less than 0.3 are thrown out to prevent weird associations.
 
-- A **cost matrix** of shape `(N_tracks, M_detections)` is computed, where each entry is `1 - IoU(predicted_bbox, detected_bbox)`
-- The **Hungarian algorithm** (`scipy.optimize.linear_sum_assignment`) solves this as a minimum-cost assignment problem
-- Matches with cost > 0.7 (i.e., IoU < 0.3) are rejected as spurious
+#### 4. Managing the Tracks
+- **Matched detections:** We update their Kalman Filter and hit reset on the `time_since_update`.
+- **Unmatched detections:** These get a brand new `Track` and a fresh Kalman Filter with a new ID.
+- **Unmatched tracks:** If a vehicle is missing for a few frames (maybe passing behind a sign), I keep it alive for up to 5 frames before finally deleting it.
 
-### 4. Track Lifecycle
-- **Matched detections** → update the corresponding Kalman Filter (state correction), reset `time_since_update` to 0
-- **Unmatched detections** → initialize a new `Track` with a fresh Kalman Filter, assign an incrementing track ID
-- **Unmatched tracks** → retain if `time_since_update ≤ 5` (vehicle temporarily occluded), otherwise delete
-
-The output is a list of active tracks — each with a stable ID, a predicted bounding box, and a Kalman-smoothed trajectory.
+In the end, this gives us a solid list of active vehicles, each sporting a stable ID and a smooth, tracked trajectory.
 
 ---
 
-## Deployment
+### Taking It to Production
 
-The full pipeline is containerized and deployed as a production API:
+I didn't just want this to live in a Jupyter notebook, so I containerized the whole pipeline and shipped it as an API:
 
-- **FastAPI** handles async file upload, video processing, and file download
-- **Docker** multi-stage build for reproducible deployment
-- **Hugging Face Spaces** with the Docker SDK for public hosting
-- **GitHub Actions** CI/CD pipeline triggers automatic redeployment on push to `main`
-- **Interactive API docs** at `/docs` — upload any video, download the tracked output
+- **FastAPI** manages the async file uploads, runs the processing, and serves up the final video.
+- **Docker** sets everything up cleanly with a multi-stage build.
+- **Hugging Face Spaces** hosts it publicly using their Docker SDK.
+- **GitHub Actions** handles the simple CI/CD pipeline, automatically redeploying whenever I push to `main`.
+- **Interactive docs** at `/docs` let you immediately test it out with your own videos.
 
-### Usage
+#### Try it out!
 **Via API:**
 ```bash
 curl -X POST "https://prajwalkulkarni-vehicletracking.hf.space/track_video/" \
      -F "file=@your_video.mp4" -o "tracked_output.mp4"
 ```
 
-Or visit the [live interactive docs](https://prajwalkulkarni-vehicletracking.hf.space/docs) to try it directly.
+Or just head over to the [live interactive docs](https://prajwalkulkarni-vehicletracking.hf.space/docs) to give it a spin.
 
 ---
 
-## Stack
+### Tech Stack
 `Python` · `NumPy` · `SciPy` · `OpenCV` · `Ultralytics (YOLOv8)` · `FastAPI` · `Docker` · `GitHub Actions`

@@ -6,91 +6,85 @@ tags: ["PyTorch", "ST-GCN", "MediaPipe", "Computer Vision", "Edge Computing"]
 badges: ["PyTorch", "MediaPipe", "ST-GCN", "FastAPI"]
 links:
   - icon: fab fa-github
-    url: https://github.com/Praakul/pose
+    url: https://github.com/Praakul/postureEstimation
 ---
 
-Manual material handling remains the primary cause of musculoskeletal disorders in industrial settings. Standard safety protocols fail to provide real-time, actionable feedback. This project implements a production-grade **Industrial IoT system** using hybrid intelligence — combining deterministic bio-mechanical physics with probabilistic deep learning — distributed across a scalable **edge-cloud architecture**.
-
----
-
-## System Architecture
-
-The system is decoupled into three distinct layers:
-
-### The Edge Client — Signal Processing Pipeline
-
-Running on factory floor hardware (laptop/NUC/Jetson), the client performs four sequential transformations on raw camera frames before data ever leaves the edge:
-
-1. **Skeleton Extraction:** MediaPipe Pose extracts a 33-point 3D skeleton at ~30 FPS. Only 17 COCO keypoints are retained (nose, eyes, ears, shoulders, elbows, wrists, hips, knees, ankles) — discarding redundant extremity points to reduce dimensionality.
-
-2. **Temporal Smoothing:** Raw keypoints are noisy. Each of the 17×3 coordinate channels passes through an independent **OneEuroFilter** — an adaptive low-pass filter that dynamically adjusts its cutoff frequency based on signal velocity. When a worker is standing still, the filter aggressively smooths (eliminating jitter). During fast movements, the cutoff rises automatically to preserve responsiveness. This is implement with a configurable `min_cutoff=1.0` and `beta=0.007`.
-
-3. **Geometric Normalization:** The skeleton is transformed to achieve three invariances:
-   - **Position Invariance:** The hip center is translated to the origin `(0,0,0)`
-   - **View Invariance:** The skeleton is rotated around the Y-axis (gravity) so the hip vector aligns with the global X-axis. This is computed as `θ = arctan2(dz, dx)` of the hip vector, making the model robust to diagonal and side camera angles
-   - **Scale Invariance:** All coordinates are divided by the spine length (shoulder center to hip center distance), normalizing distance from camera
-
-4. **Velocity Computation:** Frame-to-frame position deltas are computed per joint, producing 3 additional channels (vx, vy, vz) per keypoint. The final per-frame feature vector is `17 joints × 6 channels = 102 dimensions`.
-
-### The Inference Server — Spatial-Temporal Graph Convolution
-
-The server hosts the core AI model — a **6-block ST-GCN** (Spatial-Temporal Graph Convolutional Network) with channel-wise attention:
-
-**Architecture Details:**
-- **Input tensor shape:** `(Batch, 6, 50, 17)` — 6 channels (position + velocity), 50 frames (~1.7 seconds at 30fps), 17 joints
-- **Graph definition:** A 17-node adjacency matrix encoding the human skeleton topology (16 edges: nose-eyes, shoulders-elbows-wrists, hips-knees-ankles, cross-body connections). The adjacency matrix is **symmetrically normalized** using `D^{-1/2} A D^{-1/2}` for stable gradient flow
-- **Each ST-GCN block** contains:
-  - A **Graph Convolution** layer using `1×1` convolution followed by Einstein summation (`einsum('nctv,vw->nctw')`) against the adjacency matrix for spatial message passing across joints
-  - A **Temporal Convolution** with kernel size `(9,1)` for capturing motion patterns across frames, followed by BatchNorm and Dropout
-  - A **Squeeze-and-Excitation (SE) block** — channel-wise attention that globally average-pools spatial features, passes through a bottleneck FC layer (reduction=16), and produces per-channel importance weights via sigmoid. This allows the network to dynamically emphasize load-bearing joints (spine, hips) while suppressing peripheral noise
-- **Channel progression:** 6 → 64 → 64 → 128 → 128 → 256 → 256, with stride-2 temporal downsampling at blocks 3 and 5
-- **Classification head:** Global average pooling → Linear(256, 3) → 3 classes (Safe, Warning, Critical)
-
-Communication between client and server uses **WebSockets** via FastAPI, transmitting 50-frame skeleton sequences as JSON. The server processes each sequence with `torch.no_grad()` and returns the prediction class with softmax confidence.
-
-### The Safety Logic — Context-Aware Decision Engine
-
-Not a model — a deterministic decision layer combining multiple information sources:
-
-- **EAWS/NIOSH Bio-Mechanical Rules:**
-  - Neutral (0°–20° flexion → torso angle 160°–180°): Safe
-  - Bent (20°–60° flexion → angle 120°–160°): Warning if stooping (knees straight, angle > 150°), Safe if squatting (knees bent)
-  - Strongly Bent (>60° flexion → angle < 120°): Critical
-- **Lifting Context:** Alerts only trigger when wrist Y-coordinate exceeds knee Y-coordinate (hands below knees = lifting context)
-- **Temporal Debouncing:** A `SafetyLogic` class maintains a 60-frame rolling history. A "CRITICAL" alert requires 20+ critical predictions in the last 30 frames. After triggering, a 3-second cooldown prevents alarm fatigue. Warning alerts use a longer 5-second cooldown
+Manual material handling is still one of the biggest causes of musculoskeletal injuries in factories, and traditional safety protocols just don't give real-time, actionable feedback. To tackle this, I built a production-grade **Industrial IoT system** that combines deterministic bio-mechanical physics with probabilistic deep learning, all running seamlessly across a scalable **edge-cloud architecture**.
 
 ---
 
-## Training Pipeline
+### How the System is Built
 
-### Data Generation — Weak Supervision at Scale
-Instead of manual labeling, the `generate_data.py` pipeline processes raw training videos using the EAWS bio-mechanical labeling function as an automatic annotator:
-- Every 3rd frame is processed (SKIP=3) for efficiency
-- The `get_bio_mechanical_label()` function computes 3D torso and knee angles from raw landmarks to assign Safe(0)/Warning(1)/Critical(2) labels
-- Velocity features are computed as frame-to-frame deltas on the normalized skeleton
-- Total output: normalized (102-dim) feature vectors + auto-generated labels for 58,000+ frames
+I decoupled the architecture into three distinct layers to keep it fast and scalable:
 
-### Dataset & Augmentation
-50-frame sequences are extracted with a sliding window (stride=20) from the flat frame array. Each sequence gets a **majority-vote label** with critical class bias — if >20% of frames in a window are "Critical," the entire sequence is labeled Critical (safety-first approach).
+#### The Edge Client: Processing on the Factory Floor
 
-**Physics-grounded augmentation** applied during training:
-- **Random Y-axis rotation** (±0.3 rad) applied to both position and velocity channels — simulating different camera installation angles
-- **Gaussian jitter** (σ=0.002) on position channels
-- **Limb occlusion** — 20% chance of zeroing out all leg joints, 10% chance of zeroing one arm (simulating partial view blockage, common in industrial settings)
+Running right on the factory floor (using a laptop, NUC, or Jetson), the client handles four sequential transformations on raw camera frames so the heavy video data never has to leave the edge:
 
-### Training Configuration
-- **Optimizer:** SGD with momentum 0.9 and weight decay
-- **Loss:** Weighted CrossEntropyLoss with label smoothing. Class weights are computed dynamically from the training set distribution using inverse frequency weighting
-- **Scheduler:** MultiStepLR with configurable milestones
-- **Early stopping** with patience counter
-- **Metrics:** Accuracy, weighted Precision/Recall/F1 (sklearn), confusion matrix saved at each best-model epoch
+1. **Skeleton Extraction:** I use MediaPipe Pose to extract a 33-point 3D skeleton at roughly 30 FPS. I only keep the 17 COCO keypoints (like the nose, shoulders, elbows, hips, etc.) and toss out redundant extremities to keep the dimensionality low.
 
-### Results
-- **Validation Accuracy:** 88.24% — intentionally regularized to prioritize true generalization over overfitting to training data
-- **End-to-End Latency:** <50ms via WebSocket
-- **Color-coded visual feedback:** 🟢 Green (Safe) → 🟠 Orange (Warning) → 🔴 Red (Critical)
+2. **Temporal Smoothing:** Raw keypoint data can be pretty jittery. So, each of the 17×3 coordinate channels goes through an independent **OneEuroFilter**—an awesome adaptive low-pass filter. It dynamically adjusts its cutoff frequency depending on how fast the person is moving. If a worker is standing still, it smooths hard to eliminate jitter. If they move fast, it opens up to stay responsive. I configured it with `min_cutoff=1.0` and `beta=0.007`.
+
+3. **Geometric Normalization:** Next, I transform the skeleton to make the model invariant to camera position:
+   - **Position Invariance:** I shift the hip center to the origin `(0,0,0)`.
+   - **View Invariance:** I rotate the skeleton around the Y-axis (gravity) so the hip aligns with the X-axis. This is calculated as `θ = arctan2(dz, dx)` of the hip vector, making the system robust even if the camera is placed diagonally or to the side.
+   - **Scale Invariance:** All sets of coordinates are divided by the spine length, normalizing the distance from the camera.
+
+4. **Velocity Computation:** I compute frame-to-frame position changes for each joint, generating 3 extra channels (vx, vy, vz) per keypoint. The final feature vector for each frame comes out to `17 joints × 6 channels = 102 dimensions`.
+
+#### The Inference Server: AI at the Core
+
+The server hosts the heavy lifting—a **6-block ST-GCN** (Spatial-Temporal Graph Convolutional Network) with channel-wise attention.
+
+**A peek into the architecture:**
+- **Input shape:** `(Batch, 6, 50, 17)` — 6 channels (position + velocity), 50 frames (about 1.7 seconds of video), and 17 joints.
+- **Graph setup:** The human skeleton topology is structured as a 17-node adjacency matrix. For stable gradients, I symmetrically normalized it using `D^{-1/2} A D^{-1/2}`.
+- **Inside each ST-GCN block:**
+  - A **Graph Convolution** layer uses a `1×1` convolution followed by Einstein summation (`einsum`) to pass messages across joints.
+  - A **Temporal Convolution** captures motion patterns across frames, followed by BatchNorm and Dropout.
+  - A **Squeeze-and-Excitation (SE) block** acts as channel-wise attention, highlighting critical load-bearing joints like the spine or hips and suppressing peripheral noise.
+- **Layers:** The network grows from 6 → 64 → ... → 256 channels, downsampling along the way.
+- **Output:** It finishes with a global average pooling and a linear layer predicting 3 classes: Safe, Warning, or Critical.
+
+To tie it together, the client and server communicate instantly over **WebSockets** via FastAPI, passing 50-frame sequences as lightweight JSON. The server returns its safety prediction in milliseconds.
+
+#### The Safety Logic: Making the Call
+
+This isn't just an AI model; there's a deterministic decision engine acting as a safety net:
+
+- **Bio-Mechanical Rules (EAWS/NIOSH):** 
+  - Neutral (small flexion): Safe
+  - Bent: Warning if stooping (straight knees), Safe if squatting correctly.
+  - Strongly Bent: Critical
+- **Context Awareness:** Alerts only trigger if the worker's hands are actually below their knees, confirming a lifting motion.
+- **Temporal Debouncing:** To prevent annoying alarm fatigue, a `SafetyLogic` class maintains a rolling history. A "CRITICAL" alert only sounds if we get 20+ critical predictions within 30 frames, followed by a cooldown period.
 
 ---
 
-## Stack
+### How the Model Was Trained
+
+#### Generating Data Automatically
+Manually labeling data is slow, so I built a pipeline (`generate_data.py`) to process raw training videos and automatically annotate them using the EAWS bio-mechanical rules as a weak supervisor. It computes 3D torso and knee angles to automatically assign Safe/Warning/Critical labels, generating perfectly labeled feature vectors for over 58,000 frames.
+
+#### Curating and Augmenting Data
+I extracted 50-frame sequences using a sliding window. Because safety is the priority, any sequence with more than 20% "Critical" frames was labeled entirely as Critical.
+
+To make the model tough, I injected **physics-grounded augmentations**:
+- **Random Y-axis rotation** to simulate different camera angles.
+- **Gaussian jitter** to simulate sensor noise.
+- **Limb occlusion**, where I'd randomly zero out leg or arm joints to simulate the partial views you often get in a cluttered factory.
+
+#### Training Setup
+- **Optimizer:** SGD with momentum and weight decay.
+- **Loss:** Weighted CrossEntropyLoss with label smoothing (to handle class imbalances).
+- **Scheduler:** MultiStepLR.
+
+#### The Results
+- **Validation Accuracy:** Kept at an intentional 88.24% to prioritize real-world generalization over simply overfitting the training set.
+- **Latency:** Less than 50ms end-to-end via WebSocket.
+- **Output:** A sleek, color-coded visual feedback system (🟢 Safe, 🟠 Warning, 🔴 Critical).
+
+---
+
+### Tech Stack
 `Python` · `PyTorch` · `MediaPipe` · `FastAPI` · `WebSockets` · `PyQt6` · `OpenCV` · `NumPy` · `scikit-learn`
