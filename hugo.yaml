@@ -84,8 +84,8 @@ params:
           url: https://github.com/Praakul
         - icon: fab fa-linkedin
           url: https://linkedin.com/in/praakul
-        - icon: fab fa-x-twitter
-          url: https://twitter.com/Prakul_
+        # - icon: fab fa-x-twitter
+        #   url: https://twitter.com/Prakul_
 
   # ─── About ──────────────────────────────────────────────
   about:
