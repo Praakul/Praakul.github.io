@@ -13,21 +13,21 @@
                         <img class="card-img-top" src="{{ .image }}" alt="{{ .title }}">
                     </div>
                     {{ end }}
-                    <div class="card-body bg-transparent p-4">
+                    <div class="card-body bg-transparent p-4 flex-grow-1">
                         <div class="pb-2 bg-transparent">
                             {{ range .badges }}
                             <span class="badge badge-secondary">{{ . }}</span>
                             {{ end }}
                         </div>
-                        <h5 class="card-title bg-transparent mt-2 mb-3" style="font-size: 1.1rem; font-weight: 600;">{{
+                        <h5 class="card-title bg-transparent mt-2 mb-3" style="font-size: 1.15rem; font-weight: 600;">{{
                             .title }}</h5>
                         <div class="card-text bg-transparent secondary-font"
-                            style="font-size: 0.9rem; line-height: 1.6; color: #666;">
+                            style="font-size: 1rem; line-height: 1.6; color: #666;">
                             {{ .content }}
                         </div>
                     </div>
                     {{ if or (.links) (.featured) }}
-                    <div class="card-footer py-3">
+                    <div class="card-footer mt-auto py-3">
                         {{ range .links }}
                         <span class="m-1 mx-2">
                             <a href="{{ .url }}" target="_blank">
@@ -56,20 +56,20 @@
                         <img class="card-img-top" src="{{ .Params.image }}" alt="{{ .Title }}">
                     </div>
                     {{ end }}
-                    <div class="card-body bg-transparent p-4">
+                    <div class="card-body bg-transparent p-4 flex-grow-1">
                         <div class="pb-2 bg-transparent">
                             {{ range .Params.badges }}
                             <span class="badge badge-secondary">{{ . }}</span>
                             {{ end }}
                         </div>
-                        <h5 class="card-title bg-transparent mt-2 mb-3" style="font-size: 1.1rem; font-weight: 600;">{{
+                        <h5 class="card-title bg-transparent mt-2 mb-3" style="font-size: 1.15rem; font-weight: 600;">{{
                             .Title }}</h5>
                         <div class="card-text bg-transparent secondary-font"
-                            style="font-size: 0.9rem; line-height: 1.6; color: #666;">
+                            style="font-size: 1rem; line-height: 1.6; color: #666;">
                             {{ .Summary | plainify | truncate 150 }}
                         </div>
                     </div>
-                    <div class="card-footer py-3">
+                    <div class="card-footer mt-auto py-3">
                         {{ range .Params.links }}
                         <span class="m-1 mx-2">
                             <a href="{{ .url }}">
