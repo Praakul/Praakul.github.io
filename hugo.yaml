@@ -72,6 +72,7 @@ params:
     title: "Prajwal Kulkarni."
     subtitle: "Machine Learning Engineer"
     content: "Specializing in Deep Learning, Computer Vision and Agentic AI along with strong intereset in C++. I build AI systems from the ground up — from model architecture to production deployment."
+    image: "/self_photo_four_is_to_three.jpeg"
     button:
       enable: true
       name: "Resume"
@@ -91,7 +92,6 @@ params:
   about:
     enable: true
     title: "About Me"
-    image: "/self_photo_four_is_to_three.jpeg"
     content: |-
       I am a Machine Learning Engineer with a BE in Electronics and Communication Engineering from KLS Gogte Institute of Technology. I specialize in bridging the gap between AI and low-level system optimization.
 
