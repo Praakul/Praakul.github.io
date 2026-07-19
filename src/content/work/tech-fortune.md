@@ -2,7 +2,7 @@
 company: "Tech Fortune Technologies, Bengaluru"
 role: "Data Science Intern"
 dateStart: "01/01/2026"
-dateEnd: "Present"
+dateEnd: "05/12/2026"
 relatedProjects:
   - "sort-vehicle-tracking"
 ---
