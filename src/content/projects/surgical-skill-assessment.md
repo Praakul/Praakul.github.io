@@ -2,6 +2,7 @@
 title: Surgical Skill Assessment System
 date: 2025-08-15
 draft: false
+projectType: "Projects"
 tags:
 - FastAPI
 - PyQt5
@@ -13,80 +14,32 @@ badges:
 - PyQt5
 - AsyncIO
 - SMTP
-description: I built a production-ready, multi-client, multi-server system designed
-  to record, process, and evaluate surgical training procedures. I developed t...
+description: "Fault-tolerant distributed system for AIIMS Delhi — PyQt5 edge client with network-resilient uploads and a FastAPI async job queue using ThreadPoolExecutors for concurrent video scoring."
 repoURL: https://github.com/Praakul/surgicalSkillAnalysisSystem
 ---
 
+## TL;DR
+I engineered a production-ready, highly fault-tolerant distributed system for the Neuro-Engineering Lab at AIIMS Delhi. The platform allows surgical trainees to record, submit, and automatically receive objective, computer-vision-based evaluations of their surgical exercises. It bridges the gap between unreliable hospital network infrastructure and heavy asynchronous ML processing.
 
-I built a production-ready, multi-client, multi-server system designed to record, process, and evaluate surgical training procedures. I developed this specifically for the Neuro-Engineering Lab at AIIMS Delhi, giving trainees a seamless way to record their surgical exercises, submit them to a centralized server, and automatically receive their scored feedback via email.
+## Scaling Objective Surgical Feedback
+Surgical training requires objective, repeatable evaluation of procedural skills via video, but traditional observation is subjective, expensive, and unscalable. The technical challenge is capturing massive high-resolution video streams from multiple edge clients (trainees) and reliably transmitting them to a central server for intensive AI processing—all while ensuring no data is lost during the frequent network drops common in medical facilities.
 
----
+## Surviving Hospital Network Drops
+A standard monolithic web application fails under these conditions. If a heavy PyTorch inference job runs on the main server thread, it blocks incoming HTTP requests, crashing the system for all other users. We required a decoupled client-server architecture. The GUI had to be foolproof (designed for non-technical surgeons), and the backend had to elegantly separate network I/O from CPU-bound Machine Learning tasks, using asynchronous event loops and ThreadPoolExecutors.
 
-### The Architecture
+## Asynchronous I/O and Queue Architecture
 
-```text
-┌─────────────────────┐         ┌─────────────────────┐         ┌────────────────┐
-│ Client (PyQt5)      │         │ Server (FastAPI)     │         │ Email Service  │
-│ - Video recording   │────────▶│ - REST API           │────────▶│ - SMTP relay   │
-│ - User metadata     │◀────────│ - Async job queue    │         │ - Score report │
-│ - Upload w/ retry   │         │ - Thread pool        │         └────────────────┘
-└─────────────────────┘         └─────────────────────┘
-```
+The system consists of a PyQt5 edge client and an asynchronous FastAPI central server.
 
----
+### The PyQt5 Edge Client
+Built to be bulletproof for clinical environments:
+- **Asynchronous Video Pipeline**: Uses a `QThread` and `QTimer` firing at ~30ms to pull frames via OpenCV without blocking the main UI event loop. 
+- **Network-Resilient Uploads**: Implements a dedicated `VideoSender` thread using `requests-toolbelt` for byte-level multipart streaming. If the hospital Wi-Fi drops, it utilizes an exponential back-off algorithm (up to 3 retries) and allows mid-stream pausing/resumption using a background socket-probing daemon (`NetworkMonitor`).
 
-### The Client: A PyQt5 Desktop App
+### The FastAPI Async Server
+The backend strictly separates I/O from compute to maintain extreme concurrency:
+- **The Event-Driven Job Queue**: A custom `JobQueue` class manages the lifecycle. Instead of expensive CPU polling, it uses an `asyncio.Event` to instantly wake up the processor the microsecond a new video payload arrives.
+- **Thread Pool Execution**: Heavy Computer Vision models are intentionally dropped into a `ThreadPoolExecutor` via `loop.run_in_executor()`. This keeps the FastAPI `uvicorn` event loop completely unblocked to handle new REST requests (like `/status` polling). Thread-safe state mutation is guaranteed using `asyncio.Lock` and `asyncio.run_coroutine_threadsafe`.
 
-I designed the desktop GUI to be foolproof, considering it was built for surgeons and trainees who just want things to work without dealing with technical hiccups.
-
-#### Video Recording Pipeline
-- There's a live webcam preview driven by OpenCV in a background `QThread` to keep the UI snappy.
-- It includes super clear **Start / Pause / Resume / Stop** controls and visual indicators so they always know if they're recording.
-- Hitting "Stop & Save" automatically pauses the stream, suggests a clean timestamped filename, and safely stores the file.
-
-#### User Information Form
-- I used a `QSplitter` to give the video preview 70% of the screen and the metadata form 30%.
-- It collects standard info like their name, program, and iteration number, and actually rigorously validates inputs before letting them upload anything.
-
-#### Network-Resilient Uploads
-Hospitals don't always have the best Wi-Fi, so the upload had to be bulletproof. It runs in a dedicated thread using a robust **signal-slot architecture**.
-- It features live progress bars, clear success/error dialogs, and a live network status indicator checking connectivity.
-- A user can cancel an upload or easily hit "Retry Connection" to resume a paused transfer exactly where it left off.
-
----
-
-### The Server: FastAPI and Async Queues
-
-#### REST API Endpoints
-| Endpoint | Method | What It Does |
-|----------|--------|--------------|
-| `/submit` | POST | Accepts the video and metadata payload |
-| `/status/{id}` | GET | Checks if the job is queued, processing, done, or failed |
-| `/queue-status` | GET | Shows the queue length and accurate ETA |
-| `/submission/{id}` | DELETE | Safely cancels a queued job |
-| `/health` | GET | Simple server ping |
-
-#### The Core Engine: Job Queue
-The `JobQueue` class is the brains of the operation. It elegantly handles concurrent video processing without breaking a sweat:
-1. **Thread Pool Executor:** I set it up to process multiple videos simultaneously using Python's `ThreadPoolExecutor`. Crucially, this runs purely in the background via `loop.run_in_executor()` so the main FastAPI event loop never gets blocked.
-2. **Safe Concurrency:** An `asyncio.Lock` ensures the queue doesn't trip over itself when multiple clients spam submissions at once.
-3. **Event-Driven:** Instead of blindly polling, an `asyncio.Event` immediately wakes up the processor the second a new video lands.
-4. **Network Awareness:** Before tackling a heavy video, the queue makes sure the internet is actually up so it can eventually email the results. If the network is down, jobs are safely paused, not dropped.
-
-#### Email Service
-As soon as a video is scored, my SMTP integration fires off an automated email to the trainee with their results. If the internet drops the second a job finishes, it just waits in a `PENDING_EMAIL` state and tries again later.
-
----
-
-### Handling the Edge Cases
-
-I poured a lot of thought into what happens when things go wrong:
-- **Network drops:** The client will automatically retry uploads, and the server pauses emails instead of losing them into the void.
-- **Traffic spikes:** Thread-safe locking and configurable executors ensure the server doesn't crash if an entire class uploads at once.
-- **Messy exits:** The client safely releases the camera and cleans up temp files even if a user rudely forces the window closed mid-recording.
-
----
-
-### Tech Stack
-`Python` · `FastAPI` · `PyQt5` · `OpenCV` · `AsyncIO` · `ThreadPoolExecutor` · `SMTP` · `Uvicorn`
+### The Telemetry & Notification Engine
+Once a video is processed, the system connects to an SMTP relay to email the trainee their exact score breakdown. If the network drops the exact second a job finishes, the system transitions the job to a `PENDING_EMAIL` state. An independent `periodic_maintenance` task sweeps the queue, retrying deliveries to guarantee no trainee ever loses their evaluation.

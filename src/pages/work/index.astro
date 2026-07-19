@@ -2,11 +2,14 @@
 import { getCollection } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
+import ArrowCard from "@components/ArrowCard.astro";
 import { dateRange } from "@lib/utils";
 import { WORK } from "@consts";
 
 const collection = (await getCollection("work"))
   .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf());
+
+const allProjects = await getCollection("projects");
 
 const work = await Promise.all(
   collection.map(async (item) => {
@@ -38,14 +41,19 @@ const work = await Promise.all(
               <article>
                 <entry.Content />
               </article>
+              {entry.data.relatedProjects && entry.data.relatedProjects.length > 0 && (
+                <div class="mt-4 flex flex-col gap-4">
+                  {entry.data.relatedProjects.map(slug => {
+                    const project = allProjects.find(p => p.slug === slug);
+                    if (!project) return null;
+                    return <ArrowCard entry={project} small={true} />
+                  })}
+                </div>
+              )}
             </li>
           ))
         }
       </ul>
-<!-- 
-      <ul class="animate flex flex-col gap-4">
-
-      </ul> -->
     </div>
   </Container>
 </PageLayout>

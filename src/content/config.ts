@@ -18,6 +18,7 @@ const work = defineCollection({
     role: z.string(),
     dateStart: z.coerce.date(),
     dateEnd: z.union([z.coerce.date(), z.string()]),
+    relatedProjects: z.array(z.string()).optional(),
   }),
 });
 
@@ -31,7 +32,8 @@ const projects = defineCollection({
     tags: z.array(z.string()).optional(),
     badges: z.array(z.string()).optional(),
     demoURL: z.string().optional(),
-    repoURL: z.string().optional()
+    repoURL: z.string().optional(),
+    projectType: z.string().optional()
   }),
 });
 

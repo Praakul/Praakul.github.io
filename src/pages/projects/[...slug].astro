@@ -25,16 +25,13 @@ const { Content } = await project.render();
 <PageLayout title={project.data.title} description={project.data.description || ""}>
   <Container>
     <div class="animate">
-      <BackToPrev href="/projects">
-        Back to projects
+      <BackToPrev href={project.data.projectType === "Work" ? "/work" : "/projects"}>
+        {project.data.projectType === "Work" ? "Back to experience" : "Back to projects"}
       </BackToPrev>
     </div>
     <div class="space-y-1 my-10">
       <div class="animate flex items-center gap-1.5">
-        <div class="font-base text-sm">
-          <FormattedDate date={project.data.date} />
-        </div>
-        &bull;
+
         <div class="font-base text-sm">
           {readingTime(project.body)}
         </div>
