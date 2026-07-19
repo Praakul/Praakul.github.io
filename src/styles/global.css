@@ -4,6 +4,7 @@
 
 html {
   overflow-y: scroll;
+  overflow-x: hidden;
   color-scheme: light;
   font-size: 112.5%;
 }
@@ -20,10 +21,46 @@ body {
 body {
   @apply font-sans antialiased;
   @apply flex flex-col;
-  background: radial-gradient(ellipse 80% 50% at 50% 0%, #bfdbfe, #dbeafe 60%, #eff6ff);
-  background-attachment: fixed;
+  background-color: #f8fafc; /* very light slate/blue base */
   @apply text-slate-800;
+  position: relative;
 }
+
+/* Dynamic floating blue gradients */
+#bg-glow div {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.6;
+}
+
+.glow-1 {
+  top: 0; left: 0; width: 60vw; height: 60vw;
+  background: radial-gradient(circle, #93c5fd 0%, transparent 70%);
+  animation: floatGlow1 25s ease-in-out infinite alternate;
+}
+
+.glow-2 {
+  top: 0; right: 0; width: 70vw; height: 70vw;
+  background: radial-gradient(circle, #bfdbfe 0%, transparent 70%);
+  animation: floatGlow2 20s ease-in-out infinite alternate;
+}
+
+
+@keyframes floatGlow1 {
+  0% { transform: translate(-10vw, -10vh) scale(1); }
+  33% { transform: translate(40vw, 20vh) scale(1.2); }
+  66% { transform: translate(10vw, 50vh) scale(0.9); }
+  100% { transform: translate(60vw, 10vh) scale(1.1); }
+}
+
+@keyframes floatGlow2 {
+  0% { transform: translate(10vw, 10vh) scale(1.1); }
+  33% { transform: translate(-40vw, 40vh) scale(0.9); }
+  66% { transform: translate(-10vw, 60vh) scale(1.3); }
+  100% { transform: translate(-50vw, -10vh) scale(1); }
+}
+
 
 header {
   @apply fixed top-0 left-0 right-0 z-50 py-5;

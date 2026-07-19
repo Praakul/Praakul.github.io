@@ -18,6 +18,10 @@ const { title, description } = Astro.props;
     <Head title={`${title} | ${SITE.NAME}`} description={description} />
   </head>
   <body>
+    <div class="fixed inset-0 z-[-1] pointer-events-none" id="bg-glow">
+      <div class="glow-1"></div>
+      <div class="glow-2"></div>
+    </div>
     <Header />
     <main>
       <slot />
