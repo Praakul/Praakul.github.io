@@ -8,7 +8,7 @@ tags:
 - Desktop App
 - Python
 description: "PyQt5 desktop app for neurosurgery craniotomy training — RANSAC homographic perspective correction, async QThread video pipeline, and Grad-CAM heatmaps for explainable AI scoring."
-repoURL: "https://github.com/ramank1137/Microscopic-Neuro-Drilling"
+repoURL: "https://github.com/NetsAiims/craniotomyTrainingEvaluation"
 ---
 ## TL;DR
 A standalone desktop application designed to evaluate the surgical performance of neurosurgeons during craniotomy (skull drilling) training procedures. The system bridges the gap between clinical evaluation and deep learning by providing an intuitive, real-time GUI backed by explainable AI metrics.

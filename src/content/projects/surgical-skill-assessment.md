@@ -14,12 +14,12 @@ badges:
 - PyQt5
 - AsyncIO
 - SMTP
-description: "Fault-tolerant distributed system for AIIMS Delhi — PyQt5 edge client with network-resilient uploads and a FastAPI async job queue using ThreadPoolExecutors for concurrent video scoring."
+description: "Distributed system prototype designed as an assignment for AIIMS Delhi — PyQt5 edge client with network-resilient uploads and a FastAPI async job queue using ThreadPoolExecutors for concurrent video scoring."
 repoURL: https://github.com/Praakul/surgicalSkillAnalysisSystem
 ---
 
 ## TL;DR
-I engineered a production-ready, highly fault-tolerant distributed system for the Neuro-Engineering Lab at AIIMS Delhi. The platform allows surgical trainees to record, submit, and automatically receive objective, computer-vision-based evaluations of their surgical exercises. It bridges the gap between unreliable hospital network infrastructure and heavy asynchronous ML processing.
+I engineered a fault-tolerant distributed system prototype as an assignment for the Neuro-Engineering Lab at AIIMS Delhi. The platform was designed to allow surgical trainees to record, submit, and automatically receive objective, computer-vision-based evaluations of their surgical exercises. It bridges the gap between unreliable hospital network infrastructure and heavy asynchronous ML processing.
 
 ## Scaling Objective Surgical Feedback
 Surgical training requires objective, repeatable evaluation of procedural skills via video, but traditional observation is subjective, expensive, and unscalable. The technical challenge is capturing massive high-resolution video streams from multiple edge clients (trainees) and reliably transmitting them to a central server for intensive AI processing—all while ensuring no data is lost during the frequent network drops common in medical facilities.
