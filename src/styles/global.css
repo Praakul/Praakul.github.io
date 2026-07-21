@@ -35,36 +35,36 @@ body {
 }
 
 .glow-1 {
-  top: 0; left: 0; width: 60vw; height: 60vw;
+  top: 10vh; left: 0; width: 50vw; height: 50vw;
   background: radial-gradient(circle, #93c5fd 0%, transparent 70%);
-  animation: floatGlow1 25s ease-in-out infinite alternate;
+  animation: bounceLeft 20s ease-in-out infinite;
 }
 
 .glow-2 {
-  top: 0; right: 0; width: 70vw; height: 70vw;
+  top: 10vh; right: 0; width: 50vw; height: 50vw;
   background: radial-gradient(circle, #bfdbfe 0%, transparent 70%);
-  animation: floatGlow2 20s ease-in-out infinite alternate;
+  animation: bounceRight 20s ease-in-out infinite;
 }
 
 
-@keyframes floatGlow1 {
-  0% { transform: translate(-10vw, -10vh) scale(1); }
-  33% { transform: translate(40vw, 20vh) scale(1.2); }
-  66% { transform: translate(10vw, 50vh) scale(0.9); }
-  100% { transform: translate(60vw, 10vh) scale(1.1); }
+@keyframes bounceLeft {
+  0%, 100% { transform: translate(-10vw, 0vh) scale(1); }
+  25% { transform: translate(5vw, 10vh) scale(1.1); }
+  50% { transform: translate(-5vw, 20vh) scale(1); }
+  75% { transform: translate(5vw, -10vh) scale(1.05); }
 }
 
-@keyframes floatGlow2 {
-  0% { transform: translate(10vw, 10vh) scale(1.1); }
-  33% { transform: translate(-40vw, 40vh) scale(0.9); }
-  66% { transform: translate(-10vw, 60vh) scale(1.3); }
-  100% { transform: translate(-50vw, -10vh) scale(1); }
+@keyframes bounceRight {
+  0%, 100% { transform: translate(10vw, 20vh) scale(1); }
+  25% { transform: translate(-5vw, 10vh) scale(1.1); }
+  50% { transform: translate(10vw, 0vh) scale(1); }
+  75% { transform: translate(-5vw, 30vh) scale(1.05); }
 }
 
 
 header {
   @apply fixed top-0 left-0 right-0 z-50 py-5;
-  background: rgba(219, 234, 254, 0.75);
+  background: rgba(248, 250, 252, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
