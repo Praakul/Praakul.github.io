@@ -34,13 +34,13 @@ The system is decoupled into an Edge Client and a Cloud Inference Server communi
 ### The Edge Pipeline (Transforming Physics)
 The Edge Client (running on a Jetson or NUC) never transmits raw video. It extracts 17 COCO keypoints using MediaPipe and applies four critical mathematical transformations:
 1. **Temporal Smoothing**: Applies a 1-Euro Filter. Unlike a basic moving average, this adaptive low-pass filter dynamically changes its cutoff frequency based on movement speed to eliminate jitter without introducing lag.
-2. **Geometric Normalization**: Employs Geometric Algebra to shift the hip center to the origin `(0,0,0)` and rotates the skeleton around the Y-axis (gravity) so the hip aligns with the X-axis (`θ = arctan2(dz, dx)`). This makes the system perfectly robust to off-angle camera mounts.
+2. **Geometric Normalization**: Employs Geometric Algebra to shift the hip center to the origin (0,0,0) and rotates the skeleton around the Y-axis (gravity) so the hip aligns with the X-axis (θ = arctan2(dz, dx)). This makes the system perfectly robust to off-angle camera mounts.
 3. **Scale Invariance**: Normalizes all coordinates by spine length to counter the lack of true metric scale from single-lens RGB cameras.
 4. **Kinematics**: Explicitly calculates 1st-Order derivatives (Vx, Vy, Vz) to feed the network pre-calculated velocity tensors, rather than forcing the network to infer them.
 
 ### The Inference Server (ST-GCN)
 The server processes sequences of 50 frames via a custom **6-block ST-GCN**. 
-* **The Graph Structure**: The human skeleton is defined as an adjacency matrix, symmetrically normalized (`D^{-1/2} A D^{-1/2}`) for stable gradients.
+* **The Graph Structure**: The human skeleton is defined as an adjacency matrix, symmetrically normalized (D^(-1/2) A D^(-1/2)) for stable gradients.
 * **Squeeze-and-Excitation (SE) Attention**: To handle occlusion and noisy data (e.g., when a worker carries a large box), SE blocks are integrated directly into the spatio-temporal layers. These mathematically "excite" critical load-bearing joints (spine, hips) and "squeeze" out peripheral noise during high-velocity lifts.
 
 ### The Real-World Safety Engine

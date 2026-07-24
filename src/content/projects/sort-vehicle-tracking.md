@@ -37,12 +37,12 @@ A quantized YOLOv8 model extracts the bounding boxes `[cx, cy, w, h]` of vehicle
 
 ### 2. Temporal Prediction (Kalman Filter)
 Every tracked vehicle maintains an independent **6-dimensional Kalman Filter** modeling constant-velocity motion. 
-The internal state is `x = [cx, cy, w, h, vx, vy]`.
-- **Prediction Phase**: `P' = F·P·Fᵀ + Q`. Before we even look at the next frame's YOLO detections, the filter uses physics (`cx' = cx + vx·dt`) to predict where the car *should* be. 
-- **Update Phase**: When YOLO provides the new measurement, we calculate the Kalman Gain (`K = P·Hᵀ·S⁻¹`). This acts as a mathematical confidence score, dynamically weighting whether to trust our physics prediction or the new YOLO measurement more.
+The internal state is x = [cx, cy, w, h, vx, vy].
+- **Prediction Phase**: P' = F·P·Fᵀ + Q. Before we even look at the next frame's YOLO detections, the filter uses physics (cx' = cx + vx·dt) to predict where the car *should* be.
+- **Update Phase**: When YOLO provides the new measurement, we calculate the Kalman Gain (K = P·Hᵀ·S⁻¹). This acts as a mathematical confidence score, dynamically weighting whether to trust our physics prediction or the new YOLO measurement more.
 
 ### 3. Track Association (Hungarian Algorithm)
-To solve the assignment problem between *predicted* bounding boxes and *actual* YOLO detections, I compute a cost matrix based on `1 - IoU (Intersection over Union)`. The Hungarian Algorithm (`scipy.optimize.linear_sum_assignment`) then solves this matrix in polynomial time to find the mathematically optimal pairing.
+To solve the assignment problem between *predicted* bounding boxes and *actual* YOLO detections, I compute a cost matrix based on 1 - IoU (Intersection over Union). The Hungarian Algorithm (scipy.optimize.linear_sum_assignment) then solves this matrix in polynomial time to find the mathematically optimal pairing.
 
 ### Deployment Architecture
 The entire physics engine and ML pipeline is containerized using a multi-stage Docker build, exposed via async FastAPI endpoints, and hosted on Hugging Face Spaces with a CI/CD pipeline running through GitHub Actions.
